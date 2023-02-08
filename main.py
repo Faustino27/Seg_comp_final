@@ -34,7 +34,7 @@ def cript(rsa, fileName):
     #faz o hash da mensagem
     fileHashClaro = hashlib.sha3_256(file).digest().hex()
     
-    print(f'A mensagem lida foi: \n',file.decode('utf-8'))
+    #print(f'A mensagem lida foi: \n',file.decode('utf-8'))
     print("O hash da mensagem é: ", fileHashClaro)
 
     #oaep do hash
@@ -53,6 +53,7 @@ def cript(rsa, fileName):
         f.write(fileHash64)
     with open(name +'message.bin', 'wb') as f:
         f.write(fileMensagem64)
+    
 
     return oaep, oaepCript[1]
 
@@ -76,6 +77,15 @@ def decript(rsa, data, fileName):
     #remove os bits inúteis adicionados pelo rsa
     oaepDecript = data[0].reverseOaep(descifrado, data[1])
     print("OAEP REVERSO: ",hex(oaepDecript))
+    hashMensagem = int(hashlib.sha3_256(messageReceived).digest().hex(),16)
+    oaepDecript = int(oaepDecript)
+
+    if checkHash(hashMensagem, oaepDecript):
+        print("Os hash são iguais")
+    else:
+        print("Os hashs são diferentes")
+        print(f"O hash obtido da mensagem foi {hashMensagem} e o hash enviado foi {oaepDecript}")
+        print("SUBTRAÇÃO: ", hashMensagem - oaepDecript)
 
 def calc_num_bytes(n: int):
     cnt = 0 
@@ -84,5 +94,10 @@ def calc_num_bytes(n: int):
         cnt += 1
     return cnt
 
+
+def checkHash(hashGiven, hashMade):
+    if(hashMade - hashGiven == 0):
+        return True
+    return False
 
 main(sys.argv[1:])
